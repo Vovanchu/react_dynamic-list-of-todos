@@ -4,16 +4,16 @@ type FilterType = 'all' | 'active' | 'completed';
 
 type Props = {
   filterType: FilterType;
-  setFilterType: React.Dispatch<React.SetStateAction<FilterType>>;
+  onFilterChange: React.Dispatch<React.SetStateAction<FilterType>>;
   searchTerm: string;
-  setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
+  onSearchChange: React.Dispatch<React.SetStateAction<string>>;
 };
 
 export const TodoFilter: React.FC<Props> = ({
   filterType,
-  setFilterType,
+  onFilterChange,
   searchTerm,
-  setSearchTerm,
+  onSearchChange,
 }) => {
   return (
     <form className="field has-addons">
@@ -22,7 +22,7 @@ export const TodoFilter: React.FC<Props> = ({
           <select
             data-cy="statusSelect"
             value={filterType}
-            onChange={e => setFilterType(e.target.value as FilterType)}
+            onChange={e => onFilterChange(e.target.value as FilterType)}
           >
             <option value="all">All</option>
             <option value="active">Active</option>
@@ -38,7 +38,7 @@ export const TodoFilter: React.FC<Props> = ({
           className="input"
           placeholder="Search..."
           value={searchTerm}
-          onChange={e => setSearchTerm(e.target.value)}
+          onChange={e => onSearchChange(e.target.value)}
         />
         <span className="icon is-left">
           <i className="fas fa-magnifying-glass" />
@@ -50,7 +50,7 @@ export const TodoFilter: React.FC<Props> = ({
               data-cy="clearSearchButton"
               type="button"
               className="delete"
-              onClick={() => setSearchTerm('')}
+              onClick={() => onSearchChange('')}
             />
           </span>
         )}

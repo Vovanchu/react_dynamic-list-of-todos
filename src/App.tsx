@@ -109,18 +109,18 @@ export const App: React.FC<{ todosList: Todo[]; users: User[] }> = () => {
             <div className="block">
               <TodoFilter
                 filterType={filterType}
-                setFilterType={setFilterType}
+                onFilterChange={setFilterType}
                 searchTerm={searchTerm}
-                setSearchTerm={setSearchTerm}
+                onSearchChange={setSearchTerm}
               />
             </div>
 
             <div className="block">
               <TodoList
                 todos={filterTodos(filterType, searchTerm, todosList)}
-                setShowModal={setShowModal}
+                onToggleModal={setShowModal}
                 showModal={showModal}
-                setSelectedTodo={setSelectedTodo}
+                onSelectTodo={setSelectedTodo}
                 selectedTodo={selectedTodo}
               />
             </div>
@@ -181,8 +181,7 @@ export const App: React.FC<{ todosList: Todo[]; users: User[] }> = () => {
           ) : selectedUser ? (
             <TodoModal
               user={selectedUser}
-              showModal={showModal}
-              setShowModal={setShowModal}
+              onClose={() => setShowModal(false)}
               selectedTodo={selectedTodo}
             />
           ) : null}

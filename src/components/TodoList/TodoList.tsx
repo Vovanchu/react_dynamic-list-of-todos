@@ -1,21 +1,27 @@
 import React from 'react';
+import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 
 interface TodoListProps {
   todos: Todo[];
   showModal: boolean;
-  setShowModal: (show: boolean) => void;
+  onToggleModal: (show: boolean) => void;
   selectedTodo?: Todo | null;
-  setSelectedTodo: (todo: Todo | null) => void;
+  onSelectTodo: (todo: Todo | null) => void;
 }
 
 export const TodoList: React.FC<TodoListProps> = ({
   todos,
   showModal,
-  setShowModal,
+  onToggleModal,
   selectedTodo,
-  setSelectedTodo,
+  onSelectTodo,
 }) => {
+  const handleSelectTodo = (todo: Todo) => {
+    onToggleModal(true);
+    onSelectTodo(todo);
+  };
+
   return (
     <table className="table is-narrow is-fullwidth">
       <thead>
@@ -46,9 +52,10 @@ export const TodoList: React.FC<TodoListProps> = ({
             )}
             <td className="is-vcentered is-expanded">
               <p
-                className={
-                  todo.completed ? 'has-text-success' : 'has-text-danger'
-                }
+                className={classNames({
+                  'has-text-success': todo.completed,
+                  'has-text-danger': !todo.completed,
+                })}
               >
                 {todo.title}
               </p>
@@ -58,18 +65,14 @@ export const TodoList: React.FC<TodoListProps> = ({
                 data-cy="selectButton"
                 className="button"
                 type="button"
-                onClick={() => {
-                  setShowModal(true);
-                  setSelectedTodo(todo);
-                }}
+                onClick={() => handleSelectTodo(todo)}
               >
                 <span className="icon">
                   <i
-                    className={
-                      showModal && todo.id === selectedTodo?.id
-                        ? 'far fa-eye-slash'
-                        : 'far fa-eye'
-                    }
+                    className={classNames('far', {
+                      'fa-eye-slash': showModal && todo.id === selectedTodo?.id,
+                      'fa-eye': !showModal || todo.id !== selectedTodo?.id,
+                    })}
                   />
                 </span>
               </button>

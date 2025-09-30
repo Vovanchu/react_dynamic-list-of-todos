@@ -4,14 +4,13 @@ import { Todo } from '../../types/Todo';
 
 interface TodoModalProps {
   user: User;
-  showModal: boolean;
-  setShowModal: (show: boolean) => void;
+  onClose: () => void;
   selectedTodo: Todo | null;
 }
 
 export const TodoModal: React.FC<TodoModalProps> = ({
   user,
-  setShowModal,
+  onClose,
   selectedTodo,
 }) => {
   return (
@@ -31,7 +30,7 @@ export const TodoModal: React.FC<TodoModalProps> = ({
             type="button"
             className="delete"
             data-cy="modal-close"
-            onClick={() => setShowModal(false)}
+            onClick={onClose}
           />
         </header>
 
