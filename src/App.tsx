@@ -26,6 +26,7 @@ export const App: React.FC<{ todosList: Todo[]; users: User[] }> = () => {
   const [selectedTodo, setSelectedTodo] = useState<Todo | null>(null);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isLoadingUser, setIsLoadingUser] = useState(false);
+  const [userLoadError, setUserLoadError] = useState<string | null>(null);
 
   // 1️⃣ Завантаження todos при старті
   useEffect(() => {
@@ -47,22 +48,38 @@ export const App: React.FC<{ todosList: Todo[]; users: User[] }> = () => {
 
   // 2️⃣ Завантаження користувача при відкритті модалки
   useEffect(() => {
-    if (showModal && selectedTodo) {
-      setIsLoadingUser(true);
-      setSelectedUser(null);
+    if (!showModal || !selectedTodo) {
+      return;
+    }
 
-      getUser(selectedTodo.userId)
-        .then(userData => {
+    let cancelled = false;
+
+    setIsLoadingUser(true);
+    setSelectedUser(null);
+    setUserLoadError(null);
+
+    getUser(selectedTodo.userId)
+      .then(userData => {
+        if (!cancelled) {
           setSelectedUser(userData);
-        })
-        .catch(error => {
+        }
+      })
+      .catch(error => {
+        if (!cancelled) {
           // eslint-disable-next-line no-console
           console.error(`Failed to fetch user: ${error}`);
-        })
-        .finally(() => {
+          setUserLoadError('Failed to load user data');
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
           setIsLoadingUser(false);
-        });
-    }
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, [showModal, selectedTodo]);
 
   const filterTodos = (type: FilterType, searchText: string, todos: Todo[]) => {
@@ -111,22 +128,65 @@ export const App: React.FC<{ todosList: Todo[]; users: User[] }> = () => {
         </div>
       </div>
 
-      {showModal && (
-        <>
-          {isLoadingUser || !selectedUser ? (
-            <div className="modal is-active" data-cy="modal">
-              <div className="modal-background" />
-              <Loader />
+      {showModal && selectedTodo && (
+        <div className="modal is-active" data-cy="modal">
+          <div className="modal-background" />
+
+          {isLoadingUser ? (
+            <div className="modal-card">
+              <header className="modal-card-head">
+                <div
+                  className="modal-card-title has-text-weight-medium"
+                  data-cy="modal-header"
+                >
+                  {`Todo #${selectedTodo.id}`}
+                </div>
+
+                {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
+                <button
+                  type="button"
+                  className="delete"
+                  data-cy="modal-close"
+                  onClick={() => setShowModal(false)}
+                />
+              </header>
+
+              <div className="modal-card-body">
+                <Loader />
+              </div>
             </div>
-          ) : (
+          ) : userLoadError ? (
+            <div className="modal-card">
+              <header className="modal-card-head">
+                <div
+                  className="modal-card-title has-text-weight-medium"
+                  data-cy="modal-header"
+                >
+                  {`Todo #${selectedTodo.id}`}
+                </div>
+
+                {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
+                <button
+                  type="button"
+                  className="delete"
+                  data-cy="modal-close"
+                  onClick={() => setShowModal(false)}
+                />
+              </header>
+
+              <div className="modal-card-body">
+                <p className="has-text-danger">{userLoadError}</p>
+              </div>
+            </div>
+          ) : selectedUser ? (
             <TodoModal
               user={selectedUser}
               showModal={showModal}
               setShowModal={setShowModal}
               selectedTodo={selectedTodo}
             />
-          )}
-        </>
+          ) : null}
+        </div>
       )}
     </>
   );
